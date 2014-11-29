@@ -1,7 +1,6 @@
-@(message: String)
+@(message: String, redirectMeetupUrl: String)
 
 @main("Welcome to Play") {
-
-    @play20.welcome(message)
-
+    <h3>Now you are not authenticated, so you cannot perform any other further auctions</h3>
+    <a href="@redirectMeetupUrl"><em><b>Log in with your Meetup account!</b></em></a>
 }
