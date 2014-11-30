@@ -1,5 +1,7 @@
 package util
 
+import controllers.Application
+import play.api.Application
 import play.api.Application
 import play.api.Play
 import play.api.http.{MimeTypes, HeaderNames}
@@ -16,7 +18,7 @@ class OAuth2(application: Application) {
   lazy val meetupAuthKey = application.configuration.getString("meetup.auth.key").get
   lazy val meetupAuthSecret = application.configuration.getString("meetup.auth.secret").get
 
-  val callbackURL = util.routes.OAuth2.callback(None, None).url
+  val callbackURL = util.routes.OAuth2.callback(None, None).absoluteURL()
 
   def getAuthorizationUrl(redirectUri: String, scope: String, state: String): String = {
     val baseUrl = application.configuration.getString("meetup.redirect.url").get
@@ -30,7 +32,7 @@ class OAuth2(application: Application) {
       withQueryString("client_id" -> meetupAuthKey,
         "client_secret" -> meetupAuthSecret,
         "grant_type" -> "authorization_code",
-        "redirect_uri" -> "http://localhost:9000/_oauth-callback",
+        "redirect_uri" -> "http://swipetup.herokuapp.com/_oauth-callback",
         "code" -> code).
       withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON, HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded").
       post(Results.EmptyContent())
@@ -71,9 +73,18 @@ object OAuth2 extends Controller {
   def success() = Action.async { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").fold(Future.successful(Unauthorized("No way buddy, not your session!"))) { authToken =>
+      println(authToken)
       WS.url(app.configuration.getString("meetup.api.open_events").get).
-        withHeaders(HeaderNames.AUTHORIZATION -> s"token $authToken").
+      //WS.url("https://api.meetup.com/2/open_events?&sign=true&photo-host=public&city=Kraków&country=PL&page=5").
+        withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+        withQueryString(
+          "sign" -> "true",
+          "photo-host" -> "public",
+          "city" -> "Kraków",
+          "country" -> "PL",
+          "page" -> "5").
         get().map { response =>
+        println(response)
         Ok(response.json)
       }
     }
