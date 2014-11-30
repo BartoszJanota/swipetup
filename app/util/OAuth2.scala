@@ -18,8 +18,6 @@ class OAuth2(application: Application) {
   lazy val meetupAuthKey = application.configuration.getString("meetup.auth.key").get
   lazy val meetupAuthSecret = application.configuration.getString("meetup.auth.secret").get
 
-  val callbackURL = util.routes.OAuth2.callback(None, None).absoluteURL()
-
   def getAuthorizationUrl(redirectUri: String, scope: String, state: String): String = {
     val baseUrl = application.configuration.getString("meetup.redirect.url").get
     //baseUrl.format(meetupAuthKey, redirectUri, scope, state)
@@ -27,7 +25,6 @@ class OAuth2(application: Application) {
   }
 
   def getToken(code: String): Future[String] = {
-    println(callbackURL)
     val tokenResponse = WS.url(application.configuration.getString("meetup.access.url").get)(application).
       withQueryString("client_id" -> meetupAuthKey,
         "client_secret" -> meetupAuthSecret,
