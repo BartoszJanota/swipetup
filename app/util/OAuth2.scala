@@ -24,8 +24,10 @@ class OAuth2(application: Application) {
   }
 
   def getToken(code: String): Future[String] = {
+
     val redirectUri: String = application.configuration.getString("swipetup.domain").get + "/_oauth-callback"
     println(redirectUri)
+
     val tokenResponse = WS.url(application.configuration.getString("meetup.access.url").get)(application).
       withQueryString("client_id" -> meetupAuthKey,
         "client_secret" -> meetupAuthSecret,
