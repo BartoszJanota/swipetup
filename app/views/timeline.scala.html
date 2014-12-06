@@ -1,4 +1,4 @@
-@()
+@(events: List[EventData])
 
 @main("Swipetup Timeline") {
 <header>
@@ -6,73 +6,24 @@
 </header>
 
 <section id="cd-timeline" class="cd-container">
-    <div class="cd-timeline-block" active="false">
+    @for(event <- events) {
+    <div class="cd-timeline-block" active="@event.active">
         <div class="cd-timeline-bubble">
-            <span>7</span>
+            <span>@event.friends</span>
         </div>
         <!-- cd-timeline-bubble -->
 
         <div class="cd-timeline-content">
-            <h2>Event title</h2>
+            <h2>@event.title</h2>
 
-            <p>This is an inactive event</p>
+            <p>@event.description</p>
             <a href="#0" class="cd-activation-button"></a>
-            <span class="cd-date">Date and time</span>
+            <span class="cd-date">@event.time</span>
         </div>
         <!-- cd-timeline-content -->
     </div>
     <!-- cd-timeline-block -->
-
-    <div class="cd-timeline-block" active="true">
-        <div class="cd-timeline-bubble">
-            <span>999</span>
-        </div>
-        <!-- cd-timeline-bubble -->
-
-        <div class="cd-timeline-content">
-            <h2>Event title placeholder</h2>
-
-            <p>This is an active event</p>
-            <a href="#0" class="cd-activation-button"></a>
-            <span class="cd-date">Date and time</span>
-        </div>
-        <!-- cd-timeline-content -->
-    </div>
-    <!-- cd-timeline-block -->
-
-    <div class="cd-timeline-block" active="true">
-        <div class="cd-timeline-bubble">
-            <span>0</span>
-        </div>
-        <!-- cd-timeline-bubble -->
-
-        <div class="cd-timeline-content">
-            <h2>Event title</h2>
-
-            <p>This is an inactive event</p>
-            <a href="#0" class="cd-activation-button"></a>
-            <span class="cd-date">Date and time</span>
-        </div>
-        <!-- cd-timeline-content -->
-    </div>
-    <!-- cd-timeline-block -->
-
-    <div class="cd-timeline-block" active="false">
-        <div class="cd-timeline-bubble">
-            <span>20</span>
-        </div>
-        <!-- cd-timeline-bubble -->
-
-        <div class="cd-timeline-content">
-            <h2>Event title placeholder</h2>
-
-            <p>This is an active event</p>
-            <a href="#0" class="cd-activation-button"></a>
-            <span class="cd-date">Date and time</span>
-        </div>
-        <!-- cd-timeline-content -->
-    </div>
-    <!-- cd-timeline-block -->
+    }
 </section>
 <!-- cd-timeline -->
 <script>
