@@ -31,8 +31,8 @@ object Preferences extends Controller {
       localAuthToken = authToken
       // populate searchForm with data from db
       // load categories
-      searchForm.fill(SearchData(Some("Kraków"), Some("IT"), Some("java"), Some("06.12.2014"), Some("12.12.2014")))
-      Ok(views.html.preferences(searchForm, categories, name))
+      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), Some("java"), Some("asynchronous programming"), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
+      Ok(views.html.preferences(filledSearchForm, categories, name))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
     }
@@ -44,8 +44,8 @@ object Preferences extends Controller {
       localAuthToken = authToken
       // load city's name by ip
       // load categories
-      searchForm.fill(SearchData(Some("Kraków"), None, None, None, None))
-      Ok(views.html.preferences(searchForm, categories))
+      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), None, None, None, None))
+      Ok(views.html.preferences(filledSearchForm, categories))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
     }

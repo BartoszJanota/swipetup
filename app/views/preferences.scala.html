@@ -12,7 +12,7 @@
 <br/>
 @helper.form(action = controllers.routes.Preferences.search) {
 @inputText(friendForm("city"), '_label -> "City")
-@inputText(friendForm("category"), '_label -> "Category")
+@select(friendForm("category"), options(categories), '_label -> "Category", '_default -> "-- Select category --")
 @inputText(friendForm("text"), '_label -> "Text")
 @inputDate(friendForm("startDate"), '_label -> "Start date")
 @inputDate(friendForm("endDate"), '_label -> "End date")
