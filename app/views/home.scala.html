@@ -1,0 +1,12 @@
+@(friendForm:Form[FriendData])
+
+@import helper._
+
+@main("Swipetup Home") {
+@helper.form(action = controllers.routes.Home.proceed) {
+<span>Type your friend's name to see his preferences</span>
+@inputText(friendForm("name"), '_label -> "Friend's name")
+<span>or leave it blank to choose your own</span>
+<input type="submit" value="Proceed">
+}
+}

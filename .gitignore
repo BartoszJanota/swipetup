@@ -18,3 +18,4 @@ server.pid
 .idea/
 run.bat
 swipetup.bat
+RUNNING_PID

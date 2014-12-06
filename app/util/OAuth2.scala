@@ -1,15 +1,12 @@
 package util
 
-import controllers.Application
-import play.api.Application
-import play.api.Application
-import play.api.Play
-import play.api.http.{MimeTypes, HeaderNames}
+import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.ws.WS
-import play.api.mvc.{Results, Action, Controller}
+import play.api.mvc.{Action, Controller, Results}
+import play.api.{Application, Play}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * Created by bj on 29.11.14.
@@ -57,7 +54,7 @@ object OAuth2 extends Controller {
     } yield {
       if (state == oauthState) {
         oauth2.getToken(code).map { accessToken =>
-          Redirect(util.routes.OAuth2.success).withSession("oauth-token" -> accessToken)
+          Redirect(controllers.routes.Home.init()).withSession("oauth-token" -> accessToken)
         }.recover {
           case ex: IllegalStateException => Unauthorized(ex.getMessage)
         }
@@ -73,7 +70,7 @@ object OAuth2 extends Controller {
     request.session.get("oauth-token").fold(Future.successful(Unauthorized("No way buddy, not your session!"))) { authToken =>
       println(authToken)
       WS.url(app.configuration.getString("meetup.api.open_events").get).
-      //WS.url("https://api.meetup.com/2/open_events?&sign=true&photo-host=public&city=Kraków&country=PL&page=5").
+        //WS.url("https://api.meetup.com/2/open_events?&sign=true&photo-host=public&city=Kraków&country=PL&page=5").
         withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
         withQueryString(
           "sign" -> "true",
