@@ -1,13 +1,30 @@
 @(title: String)(content: Html)
 
 <html>
-    <head>
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href='@routes.Assets.at("stylesheets/main.css")'>
-        <link rel="shortcut icon" type="image/png" href='@routes.Assets.at("images/favicon.png")'>
-        <script src='@routes.Assets.at("javascripts/hello.js")' type="text/javascript"></script>
-    </head>
-    <body>
-        @content
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>@title</title>
+
+    <link rel="stylesheet" media="screen" href='@routes.Assets.at("stylesheets/main.css")'>
+    <link rel="shortcut icon" type="image/png" href='@routes.Assets.at("images/favicon.png")'>
+    <script src='@routes.Assets.at("javascripts/hello.js")' type="text/javascript"></script>
+
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif|Open+Sans:400,700' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" href='@routes.Assets.at("stylesheets/reset.css")'>
+    <!-- CSS reset -->
+    <link rel="stylesheet" href='@routes.Assets.at("stylesheets/style.css")'>
+    <!-- Resource style -->
+    <script src='@routes.Assets.at("javascripts/modernizr.js")'></script>
+    <!-- Modernizr -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Resource jQuery -->
+    <script src='@routes.Assets.at("javascripts/main.js")'></script>
+
+</head>
+<body>
+@content
+</body>
 </html>
