@@ -11,3 +11,4 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # OAuth2 Authorization
 GET        /_oauth-callback                    util.OAuth2.callback(code: Option[String], state: Option[String])
 GET        /oauth-success/open_events          util.OAuth2.success
+GET        /oauth-success/                     util.OAuth2.recognizeMe

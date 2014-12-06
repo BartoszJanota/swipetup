@@ -1,13 +1,11 @@
 package util
 
-import controllers.Application
-import play.api.Application
 import play.api.Application
 import play.api.Play
 import play.api.http.{MimeTypes, HeaderNames}
 import play.api.libs.ws.WS
-import play.api.mvc.{Results, Action, Controller}
-
+import play.api.mvc.{BodyParsers, Action, Controller}
+import play.api.mvc.Results
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -57,7 +55,7 @@ object OAuth2 extends Controller {
     } yield {
       if (state == oauthState) {
         oauth2.getToken(code).map { accessToken =>
-          Redirect(util.routes.OAuth2.success).withSession("oauth-token" -> accessToken)
+          Redirect(util.routes.OAuth2.recognizeMe).withSession("oauth-token" -> accessToken)
         }.recover {
           case ex: IllegalStateException => Unauthorized(ex.getMessage)
         }
@@ -73,7 +71,6 @@ object OAuth2 extends Controller {
     request.session.get("oauth-token").fold(Future.successful(Unauthorized("No way buddy, not your session!"))) { authToken =>
       println(authToken)
       WS.url(app.configuration.getString("meetup.api.open_events").get).
-      //WS.url("https://api.meetup.com/2/open_events?&sign=true&photo-host=public&city=Kraków&country=PL&page=5").
         withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
         withQueryString(
           "sign" -> "true",
@@ -82,8 +79,34 @@ object OAuth2 extends Controller {
           "country" -> "PL",
           "page" -> "5").
         get().map { response =>
+          Ok(response.json)
+      }
+    }
+  }
+
+  def recognizeMe() = Action.async { request =>
+    implicit val app = Play.current
+    request.session.get("oauth-token").fold(Future.successful(Unauthorized("No way buddy, not your session!"))) { authToken =>
+      println(authToken)
+      WS.url(app.configuration.getString("meetup.api.member.self").get).
+        withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+        withQueryString(
+          "sign" -> "true",
+          "photo-host" -> "public",
+          "page" -> "5").
+        get().map { response =>
+        //User object needs to be created here from response
         Ok(response.json)
       }
     }
   }
 }
+
+/*object User extends Format[User]{
+
+  override def writes(o: User): JsValue = ???
+
+  override def reads(json: JsValue): Reads[User] = Json.reads[User]
+}
+
+case class User(name: String)*/
