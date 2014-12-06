@@ -70,7 +70,6 @@ object OAuth2 extends Controller {
     request.session.get("oauth-token").fold(Future.successful(Unauthorized("No way buddy, not your session!"))) { authToken =>
       println(authToken)
       WS.url(app.configuration.getString("meetup.api.open_events").get).
-        //WS.url("https://api.meetup.com/2/open_events?&sign=true&photo-host=public&city=Kraków&country=PL&page=5").
         withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
         withQueryString(
           "sign" -> "true",
@@ -83,4 +82,30 @@ object OAuth2 extends Controller {
       }
     }
   }
+
+  def recognizeMe() = Action.async { request =>
+    implicit val app = Play.current
+    request.session.get("oauth-token").fold(Future.successful(Unauthorized("No way buddy, not your session!"))) { authToken =>
+      println(authToken)
+      WS.url(app.configuration.getString("meetup.api.member.self").get).
+        withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+        withQueryString(
+          "sign" -> "true",
+          "photo-host" -> "public",
+          "page" -> "5").
+        get().map { response =>
+        //User object needs to be created here from response
+        Ok(response.json)
+      }
+    }
+  }
 }
+
+/*object User extends Format[User]{
+
+  override def writes(o: User): JsValue = ???
+
+  override def reads(json: JsValue): Reads[User] = Json.reads[User]
+}
+
+case class User(name: String)*/

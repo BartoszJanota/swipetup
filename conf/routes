@@ -14,3 +14,4 @@ GET        /home                               controllers.Home.init
 POST       /home                               controllers.Home.proceed
 GET        /home/preferences                   controllers.Preferences.init
 GET        /oauth-success/open_events          util.OAuth2.success
+GET        /oauth-success/                     util.OAuth2.recognizeMe
