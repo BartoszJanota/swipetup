@@ -11,6 +11,8 @@ import play.api.mvc._
  */
 object Home extends Controller {
 
+  var localAuthToken: String = null
+
   val friendForm = Form[FriendData](
     mapping(
       "name" -> optional(text)
@@ -20,6 +22,7 @@ object Home extends Controller {
   def init = Action { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
+      localAuthToken = authToken
       Ok(views.html.home(friendForm))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
@@ -35,9 +38,9 @@ object Home extends Controller {
       },
       friendData => {
         if (friendData.name == null) {
-          Redirect(routes.Preferences.init())
+          Redirect(routes.Preferences.initPrivate()).withSession("oauth-token" -> localAuthToken)
         } else {
-          Redirect(routes.Preferences.init())
+          Redirect(routes.Preferences.initPublic(friendData.name)).withSession("oauth-token" -> localAuthToken)
         }
       }
     )

@@ -1,14 +1,13 @@
 import play.PlayImport.PlayKeys
-import play.Play.autoImport._
+import play.PlayImport.PlayKeys._
 import play.twirl.sbt.Import._
+import sbt.Keys._
 import sbt._
-import Keys._
-import PlayKeys._
 
 
 object ApplicationBuild extends Build {
 
-  val appName = "myproject"
+  val appName = "swipetup"
   val appVersion = "1.0-SNAPSHOT"
 
   val appDependencies = Seq(

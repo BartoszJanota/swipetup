@@ -1,7 +1,21 @@
-@()
+@(friendForm:Form[SearchData], categories: List[String], name: String = "")
 
 @import helper._
 
 @main("Swipetup Preferences") {
+@name
 <span>Here will be preferences form</span>
+<br/>
+<span>Including data of your friend</span>
+<br/>
+<span>Choose your search criteria</span>
+<br/>
+@helper.form(action = controllers.routes.Preferences.search) {
+@inputText(friendForm("city"), '_label -> "City")
+@inputText(friendForm("category"), '_label -> "Category")
+@inputText(friendForm("text"), '_label -> "Text")
+@inputDate(friendForm("startDate"), '_label -> "Start date")
+@inputDate(friendForm("endDate"), '_label -> "End date")
+<input type="submit" value="Search">
+}
 }
