@@ -16,3 +16,5 @@ server.pid
 /dist/
 .cache
 .idea/
+run.bat
+swipetup.bat
