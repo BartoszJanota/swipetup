@@ -18,21 +18,21 @@ class OAuth2(application: Application) {
   lazy val meetupAuthKey = application.configuration.getString("meetup.auth.key").get
   lazy val meetupAuthSecret = application.configuration.getString("meetup.auth.secret").get
 
-  val callbackURL = util.routes.OAuth2.callback(None, None).absoluteURL()
-
   def getAuthorizationUrl(redirectUri: String, scope: String, state: String): String = {
     val baseUrl = application.configuration.getString("meetup.redirect.url").get
-    //baseUrl.format(meetupAuthKey, redirectUri, scope, state)
     baseUrl.format(meetupAuthKey, redirectUri, state) //basic by default
   }
 
   def getToken(code: String): Future[String] = {
-    println(callbackURL)
+
+    val redirectUri: String = application.configuration.getString("swipetup.domain").get + "/_oauth-callback"
+    println(redirectUri)
+
     val tokenResponse = WS.url(application.configuration.getString("meetup.access.url").get)(application).
       withQueryString("client_id" -> meetupAuthKey,
         "client_secret" -> meetupAuthSecret,
         "grant_type" -> "authorization_code",
-        "redirect_uri" -> "http://swipetup.herokuapp.com/_oauth-callback",
+        "redirect_uri" -> redirectUri,
         "code" -> code).
       withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON, HeaderNames.CONTENT_TYPE -> "application/x-www-form-urlencoded").
       post(Results.EmptyContent())
@@ -56,8 +56,6 @@ object OAuth2 extends Controller {
       oauthState <- request.session.get("oauth-state")
     } yield {
       if (state == oauthState) {
-        println("sesstions states are correct!")
-        println(code)
         oauth2.getToken(code).map { accessToken =>
           Redirect(util.routes.OAuth2.success).withSession("oauth-token" -> accessToken)
         }.recover {
@@ -65,7 +63,7 @@ object OAuth2 extends Controller {
         }
       }
       else {
-        Future.successful(BadRequest("Invalid github login"))
+        Future.successful(BadRequest("Invalid meetup login"))
       }
     }).getOrElse(Future.successful(BadRequest("No parameters supplied")))
   }
@@ -84,7 +82,6 @@ object OAuth2 extends Controller {
           "country" -> "PL",
           "page" -> "5").
         get().map { response =>
-        println(response)
         Ok(response.json)
       }
     }
