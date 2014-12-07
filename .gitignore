@@ -19,3 +19,5 @@ server.pid
 run.bat
 swipetup.bat
 RUNNING_PID
+database/
+start_database.bat
