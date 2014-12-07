@@ -7,12 +7,41 @@ import util.SalatDAOWithCfg
 import models.mongoContext._
 
 
+case class CategoryResults(results: List[Category])
+
+object CategoryResults{
+  def generate(results: Option[List[Category]], total: Option[Int]) =
+  CategoryResults(results = results.getOrElse(List()))
+}
+
+trait CategoryResultsParser extends CategoryParser {
+  implicit  val categoryResultsRead: Reads[CategoryResults] = (
+    (JsPath \ "results").readNullable[List[Category]] and
+      (JsPath \ "total").readNullable[Int]
+    )(CategoryResults.generate _)
+}
+
+case class Category(id: Int, name: String)
+
+object Category{
+  def generate(name: Option[String],
+                id: Option[Int]) =
+  Category(name = name.getOrElse("undefined"), id = id.getOrElse(0))
+}
+
+trait CategoryParser {
+  implicit val categoryReads: Reads[Category] = (
+    (JsPath \ "name").readNullable[String] and
+      (JsPath \ "id").readNullable[Int]
+    )(Category.generate _)
+}
+
 case class User(
                  @Key("_id") name: String,
                   status: String
                   )
 
-object User extends{
+object User{
   def generate(name: Option[String],
                status: Option[String]) =
     User(
@@ -48,4 +77,3 @@ case class UserPreference(
                            )
 
 object UserPreferenceDAO extends SalatDAOWithCfg[UserPreference, String]("app.mongo.uri", "swipetup_users_preference")
-
