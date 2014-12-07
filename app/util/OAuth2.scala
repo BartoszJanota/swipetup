@@ -1,10 +1,12 @@
 package util
 
-import play.api.http.{HeaderNames, MimeTypes}
+import play.api.Application
+import play.api.Play
+import play.api.http.{MimeTypes, HeaderNames}
 import play.api.libs.ws.WS
-import play.api.mvc.{Action, Controller, Results}
-import play.api.{Application, Play}
-
+import play.api.mvc.{BodyParsers, Action, Controller}
+import play.api.mvc.Results
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -82,30 +84,4 @@ object OAuth2 extends Controller {
       }
     }
   }
-
-  def recognizeMe() = Action.async { request =>
-    implicit val app = Play.current
-    request.session.get("oauth-token").fold(Future.successful(Unauthorized("No way buddy, not your session!"))) { authToken =>
-      println(authToken)
-      WS.url(app.configuration.getString("meetup.api.member.self").get).
-        withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
-        withQueryString(
-          "sign" -> "true",
-          "photo-host" -> "public",
-          "page" -> "5").
-        get().map { response =>
-        //User object needs to be created here from response
-        Ok(response.json)
-      }
-    }
-  }
 }
-
-/*object User extends Format[User]{
-
-  override def writes(o: User): JsValue = ???
-
-  override def reads(json: JsValue): Reads[User] = Json.reads[User]
-}
-
-case class User(name: String)*/
