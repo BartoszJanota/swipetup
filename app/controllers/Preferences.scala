@@ -15,7 +15,7 @@ import scala.concurrent.Future
 /**
  * Created by Przemek on 2014-12-06.
  */
-object Preferences extends Controller with UserParser {
+object Preferences extends Controller with UserParser with CategoryResultsParser {
 
   val categories = List("java", "python", "scala", "C#", "javascript")
 
@@ -29,27 +29,37 @@ object Preferences extends Controller with UserParser {
     )(SearchData.apply)(SearchData.unapply)
   )
 
-  def initWithPreferencesOf(friendName: String) = Action { request =>
-    implicit val app = Play.current
+  def initWithPreferencesOf(friendName: String) = Action.async { request =>
+    //implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
-      val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse(UserPreference.defaultUserPreference)
-      println(preference)
-      val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), preference.category, Some(preference.text), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
-      Ok(views.html.preferences(filledSearchForm, categories, friendName))
+      fetchCategories(authToken).map { response =>
+        val json = Json.parse(response.body)
+        val categoryResults: CategoryResults = json.as[CategoryResults]
+        val mappedCategoryResults: Map[String, String] = categoryResults.results.map(category => category.id.toString -> category.name).toMap
+        println(mappedCategoryResults)
+        val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse(UserPreference.defaultUserPreference)
+        val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), preference.category, Some(preference.text), None, None)) //date format is yyyy-mm-dd
+        Ok(views.html.preferences(filledSearchForm, mappedCategoryResults, friendName))
+      }
     }.getOrElse {
-      Unauthorized("No way buddy, not your session!")
+      Future(Unauthorized("No way buddy, not your session!"))
     }
   }
 
-  def initPrivate = Action { request =>
+  def initPrivate = Action.async { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
-      // load city's name by ip
-      // load categories
-      val filledSearchForm = searchForm.fill(SearchData(None, List(), None, None, None))
-      Ok(views.html.preferences(filledSearchForm, categories))
+      fetchCategories(authToken).map { response =>
+        val json = Json.parse(response.body)
+        val categoryResults: CategoryResults = json.as[CategoryResults]
+        val mappedCategoryResults: Map[String, String] = categoryResults.results.map(category => category.id.toString -> category.name).toMap
+        println(mappedCategoryResults)
+        // load city's name by ip
+        val filledSearchForm = searchForm.fill(SearchData(None, List(), None, None, None)) //date format is yyyy-mm-dd
+        Ok(views.html.preferences(filledSearchForm, mappedCategoryResults))
+      }
     }.getOrElse {
-      Unauthorized("No way buddy, not your session!")
+      Future(Unauthorized("No way buddy, not your session!"))
     }
   }
 
@@ -61,7 +71,7 @@ object Preferences extends Controller with UserParser {
       searchForm.bindFromRequest.fold(
         formWithErrors => {
           println("Form with errors")
-          BadRequest(views.html.preferences(searchForm, categories))
+          BadRequest("Form was not properly validated")
         },
         searchData => {
           fetchUserName(authToken).map { response =>
@@ -90,5 +100,18 @@ object Preferences extends Controller with UserParser {
         "sign" -> "true",
         "photo-host" -> "public",
         "page" -> "5").get()
+  }
+
+  def fetchCategories(authToken: String): Future[WSResponse] = {
+    implicit val app = Play.current
+    WS.url(app.configuration.getString("meetup.api.categories").get).
+      withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+      withQueryString(
+        "desc" -> "false",
+        "offset" -> "0",
+        "format" -> "json",
+        "sign" -> "true",
+        "photo-host" -> "public",
+        "page" -> "50").get()
   }
 }
