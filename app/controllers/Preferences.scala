@@ -1,6 +1,6 @@
 package controllers
 
-import models.{UserDAO, User, SearchData}
+import models.{UserParser, UserDAO, User, SearchData}
 import play.api._
 import play.api.data.Forms._
 import play.api.data._
@@ -16,7 +16,7 @@ import scala.concurrent.Future
 /**
  * Created by Przemek on 2014-12-06.
  */
-object Preferences extends Controller {
+object Preferences extends Controller with UserParser{
 
   val categories = List("java", "python", "scala", "C#", "javascript")
 
