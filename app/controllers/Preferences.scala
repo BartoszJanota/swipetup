@@ -38,7 +38,7 @@ object Preferences extends Controller with UserParser with CategoryResultsParser
         val mappedCategoryResults: Map[String, String] = categoryResults.results.map(category => category.id.toString -> category.name).toMap
         println(mappedCategoryResults)
         val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse(UserPreference.defaultUserPreference)
-        val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), preference.category, Some(preference.text), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
+        val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), preference.category, Some(preference.text), None, None)) //date format is yyyy-mm-dd
         Ok(views.html.preferences(filledSearchForm, mappedCategoryResults, friendName))
       }
     }.getOrElse {
@@ -46,15 +46,20 @@ object Preferences extends Controller with UserParser with CategoryResultsParser
     }
   }
 
-  def initPrivate = Action { request =>
+  def initPrivate = Action.async { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
-      // load city's name by ip
-      // load categories
-      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), List(), None, None, None))
-      Ok(views.html.preferences(filledSearchForm, Map("1" -> "java")))
+      fetchCategories(authToken).map { response =>
+        val json = Json.parse(response.body)
+        val categoryResults: CategoryResults = json.as[CategoryResults]
+        val mappedCategoryResults: Map[String, String] = categoryResults.results.map(category => category.id.toString -> category.name).toMap
+        println(mappedCategoryResults)
+        // load city's name by ip
+        val filledSearchForm = searchForm.fill(SearchData(None, List(), None, None, None)) //date format is yyyy-mm-dd
+        Ok(views.html.preferences(filledSearchForm, mappedCategoryResults))
+      }
     }.getOrElse {
-      Unauthorized("No way buddy, not your session!")
+      Future(Unauthorized("No way buddy, not your session!"))
     }
   }
 
