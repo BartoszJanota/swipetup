@@ -18,7 +18,7 @@ object Preferences extends Controller {
   val searchForm = Form[SearchData](
     mapping(
       "city" -> optional(text),
-      "category" -> optional(text),
+      "category" -> list(text),
       "text" -> optional(text),
       "startDate" -> optional(text),
       "endDate" -> optional(text)
@@ -31,7 +31,7 @@ object Preferences extends Controller {
       localAuthToken = authToken
       // populate searchForm with data from db
       // load categories
-      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), Some("java"), Some("asynchronous programming"), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
+      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), List("java", "python"), Some("asynchronous programming"), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
       Ok(views.html.preferences(filledSearchForm, categories, name))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
@@ -44,7 +44,7 @@ object Preferences extends Controller {
       localAuthToken = authToken
       // load city's name by ip
       // load categories
-      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), None, None, None, None))
+      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), List(), None, None, None))
       Ok(views.html.preferences(filledSearchForm, categories))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
@@ -53,20 +53,24 @@ object Preferences extends Controller {
 
   def search = Action { implicit request =>
     println("Search clicked")
-    searchForm.bindFromRequest.fold(
-      formWithErrors => {
-        println("Form with errors")
-        BadRequest(views.html.preferences(searchForm, categories))
-      },
-      searchData => {
-        println(searchData.city)
-        println(searchData.category)
-        println(searchData.text)
-        println(searchData.startDate)
-        println(searchData.endDate)
-        Redirect(routes.Timeline.init()).withSession("oauth-token" -> localAuthToken)
-      }
-    )
+    request.session.get("oauth-token").map { authToken =>
+      searchForm.bindFromRequest.fold(
+        formWithErrors => {
+          println("Form with errors")
+          BadRequest(views.html.preferences(searchForm, categories))
+        },
+        searchData => {
+          println(searchData.city)
+          println(searchData.category)
+          println(searchData.text)
+          println(searchData.startDate)
+          println(searchData.endDate)
+          Redirect(routes.Timeline.init()).withSession("oauth-token" -> localAuthToken)
+        }
+      )
+    }.getOrElse {
+      Unauthorized("No way buddy, not your session!")
+    }
   }
 
 }
