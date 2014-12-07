@@ -1,6 +1,6 @@
 package controllers
 
-import models.{UserParser, UserDAO, User, SearchData}
+import models._
 import play.api._
 import play.api.data.Forms._
 import play.api.data._
@@ -33,9 +33,9 @@ object Preferences extends Controller with UserParser{
   def initWithPreferencesOf(friendName: String) = Action { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
-      // populate searchForm with data from db
-      // load categories
-      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), Some("java"), Some("asynchronous programming"), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
+      val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse(UserPreference.defaultUserPreference)
+      println(preference)
+      val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), Some(preference.category), Some(preference.text), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
       Ok(views.html.preferences(filledSearchForm, categories, friendName))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
@@ -69,10 +69,9 @@ object Preferences extends Controller with UserParser{
               val json = Json.parse(response.body)
               val user: User = json.as[User]
               UserDAO.save(user)
-              println(user)
-              println(searchData.city)
-              println(searchData.category)
-              println(searchData.text)
+              val userPreference: UserPreference = UserPreference(user, searchData)
+              UserPreferenceDAO.save(userPreference)
+              println(userPreference)
               println(searchData.startDate)
               println(searchData.endDate)
           }

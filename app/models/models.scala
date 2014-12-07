@@ -31,3 +31,21 @@ trait UserParser {
 
 object UserDAO extends SalatDAOWithCfg[User, String]("app.mongo.uri", "swipetup_users")
 
+object UserPreference{
+
+  def defaultUserPreference = UserPreference("undefined", "Kraków", "java", "Java is default!")
+
+  def apply(user: User, searchData: SearchData): UserPreference ={
+    UserPreference(userName = user.name, city = searchData.city, category = searchData.category, text = searchData.text)
+  }
+}
+
+case class UserPreference(
+                          @Key("_id") userName: String,
+                          city: String = "",
+                          category: String = "",
+                          text: String = ""
+                           )
+
+object UserPreferenceDAO extends SalatDAOWithCfg[UserPreference, String]("app.mongo.uri", "swipetup_users_preference")
+
