@@ -4,6 +4,7 @@ package models
  * Created by Przemek on 2014-12-06.
  */
 class EventData {
+  var id: String = _
   var title: String = _
   var group: String = _
   var description: String = _
@@ -13,8 +14,9 @@ class EventData {
 }
 
 object EventData {
-  def apply(title: String, group: String, description: String, active: Boolean, time: String, friends: Int) = {
+  def apply(id: String, title: String, group: String, description: String, active: Boolean, time: String, friends: Int) = {
     val eventData = new EventData
+    eventData.id = id
     eventData.title = title
     eventData.group = group
     eventData.description = description
@@ -25,6 +27,7 @@ object EventData {
   }
 
   def unapply(eventData: EventData) = Some(
+    eventData.id,
     eventData.title,
     eventData.group,
     eventData.description,

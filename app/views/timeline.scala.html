@@ -17,7 +17,7 @@
             <h2>@event.title</h2>
 
             <p>@event.description</p>
-            <a href="#0" class="cd-activation-button"></a>
+            <a event-id="@event.id" href="#0" class="cd-activation-button"></a>
             <span class="cd-date">@event.time</span>
         </div>
         <!-- cd-timeline-content -->
@@ -32,11 +32,24 @@
         $(".cd-activation-button").click(function (event) {
             var timeline_block = $(event.target).closest('.cd-timeline-block');
             var activation_state = timeline_block.attr('active');
+            var new_activation_state;
             if (activation_state === 'true') {
-                timeline_block.attr('active', 'false');
+                new_activation_state = false;
             } else {
-                timeline_block.attr('active', 'true');
+                new_activation_state = true;
             }
+            timeline_block.attr('active', String(new_activation_state));
+
+            $.post(
+                    '/home/timeline/activation_change',
+                    {
+                        id: $(event.target).attr('event-id'),
+                        active: new_activation_state
+                    },
+                    function (response) {
+                        console.log(response);
+                    }
+            )
         });
     });
 </script>
