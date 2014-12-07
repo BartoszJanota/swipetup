@@ -16,14 +16,14 @@ import scala.concurrent.Future
 /**
  * Created by Przemek on 2014-12-06.
  */
-object Preferences extends Controller with UserParser{
+object Preferences extends Controller with UserParser {
 
   val categories = List("java", "python", "scala", "C#", "javascript")
 
   val searchForm = Form[SearchData](
     mapping(
       "city" -> optional(text),
-      "category" -> optional(text),
+      "category" -> list(text),
       "text" -> optional(text),
       "startDate" -> optional(text),
       "endDate" -> optional(text)

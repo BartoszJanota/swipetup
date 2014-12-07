@@ -9,11 +9,13 @@ GET     /                           controllers.Application.signin
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # OAuth2 Authorization
-GET        /_oauth-callback                    util.OAuth2.callback(code: Option[String], state: Option[String])
-GET        /oauth-success/open_events          util.OAuth2.success
-GET        /home                               controllers.Home.init
-POST       /home                               controllers.Home.proceed
-GET        /home/preferences/:friendName       controllers.Preferences.initWithPreferencesOf(friendName)
-GET        /home/preferences                   controllers.Preferences.initPrivate()
-POST       /home/preferences                   controllers.Preferences.search
-GET        /home/timeline                      controllers.Timeline.init
+
+GET        /_oauth-callback                        util.OAuth2.callback(code: Option[String], state: Option[String])
+GET        /oauth-success/open_events              util.OAuth2.success
+GET        /home                                   controllers.Home.init
+POST       /home                                   controllers.Home.proceed
+GET        /home/preferences/:friendName           controllers.Preferences.initWithPreferencesOf(friendName)
+GET        /home/preferences                       controllers.Preferences.initPrivate()
+POST       /home/preferences                       controllers.Preferences.search
+GET        /home/timeline                          controllers.Timeline.init
+POST       /home/timeline/activation_change        controllers.Timeline.activationChange
