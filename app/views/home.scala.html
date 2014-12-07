@@ -3,13 +3,13 @@
 @import helper._
 
 @main("Swipetup Home") {
-<div style="text-align: center; margin-top: 50px;">
+<div style="text-align: center; margin-top: 50px; margin-bottom: 50px;">
     <div style="text-align: left; display: inline-block;">
         @helper.form(action = controllers.routes.Home.proceed) {
         <h2>Type your friend's name to see his preferences</h2>
 
-        <div style="margin-top: 24px;">
-            @inputText(friendForm("name"), '_label -> "Friend's name")
+        <div style="margin-top: 24px">
+            @inputText(friendForm("name"), '_label -> "Friend's name", 'class -> "form-input")
         </div>
 
         <h2 style="margin-top: 24px;">or leave it blank to choose your own</h2>

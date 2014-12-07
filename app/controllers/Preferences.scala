@@ -6,9 +6,8 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSResponse, WS}
+import play.api.libs.ws.{WS, WSResponse}
 import play.api.mvc._
-import util.OAuth2._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -65,15 +64,15 @@ object Preferences extends Controller with UserParser {
           BadRequest(views.html.preferences(searchForm, categories))
         },
         searchData => {
-          fetchUserName(authToken).map{ response =>
-              val json = Json.parse(response.body)
-              val user: User = json.as[User]
-              UserDAO.save(user)
-              val userPreference: UserPreference = UserPreference(user, searchData)
-              UserPreferenceDAO.save(userPreference)
-              println(userPreference)
-              println(searchData.startDate)
-              println(searchData.endDate)
+          fetchUserName(authToken).map { response =>
+            val json = Json.parse(response.body)
+            val user: User = json.as[User]
+            UserDAO.save(user)
+            val userPreference: UserPreference = UserPreference(user, searchData)
+            UserPreferenceDAO.save(userPreference)
+            println(userPreference)
+            println(searchData.startDate)
+            println(searchData.endDate)
           }
           Redirect(routes.Timeline.init()).withSession("oauth-token" -> authToken)
         }

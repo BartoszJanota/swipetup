@@ -3,17 +3,29 @@
 @import helper._
 
 @main("Swipetup Preferences") {
-<div style="text-align: center; margin-top: 50px;">
+<div style="text-align: center; margin-top: 50px; margin-bottom: 50px;">
     <div style="text-align: left; display: inline-block;">
         <h2>Choose your search criteria:</h2>
 
         <div style="margin-top: 24px;">
             @helper.form(action = controllers.routes.Preferences.search) {
-            @inputText(friendForm("city"), '_label -> "City")
-            @select(friendForm("category"), options(categories), '_label -> "Category", 'multiple -> None)
-            @inputText(friendForm("text"), '_label -> "Text")
-            @inputDate(friendForm("startDate"), '_label -> "Start date")
-            @inputDate(friendForm("endDate"), '_label -> "End date")
+            <div style="margin-top: 24px">
+                @inputText(friendForm("city"), '_label -> "City", 'class -> "form-input")
+            </div>
+            <div style="margin-top: 24px">
+                @select(friendForm("category"), options(categories), '_label -> "Category",
+                'multiple -> None,
+                'class -> "form-input form-input-select")
+            </div>
+            <div style="margin-top: 24px">
+                @inputText(friendForm("text"), '_label -> "Text", 'class -> "form-input")
+            </div>
+            <div style="margin-top: 24px">
+                @inputDate(friendForm("startDate"), '_label -> "Start date", 'class -> "form-input")
+            </div>
+            <div style="margin-top: 24px">
+                @inputDate(friendForm("endDate"), '_label -> "End date", 'class -> "form-input")
+            </div>
             <input style="margin-top: 24px;"
                    class="form-button"
                    type="submit"
