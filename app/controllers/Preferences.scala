@@ -35,7 +35,7 @@ object Preferences extends Controller with UserParser {
     request.session.get("oauth-token").map { authToken =>
       val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse(UserPreference.defaultUserPreference)
       println(preference)
-      val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), Some(preference.category), Some(preference.text), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
+      val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), preference.category, Some(preference.text), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
       Ok(views.html.preferences(filledSearchForm, categories, friendName))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
@@ -47,7 +47,7 @@ object Preferences extends Controller with UserParser {
     request.session.get("oauth-token").map { authToken =>
       // load city's name by ip
       // load categories
-      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), None, None, None, None))
+      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), List(), None, None, None))
       Ok(views.html.preferences(filledSearchForm, categories))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
