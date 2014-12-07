@@ -9,12 +9,10 @@ import play.api.mvc._
  */
 object Timeline extends Controller {
 
-  var localAuthToken: String = null
-
   def init() = Action { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
-      localAuthToken = authToken
+      val loggedUser = request.session.data.get("logged-name").get
       // load events from meetup
       val events: List[EventData] = List(
         EventData(
@@ -63,7 +61,7 @@ object Timeline extends Controller {
           21
         )
       )
-      Ok(views.html.timeline(events))
+      Ok(views.html.timeline(loggedUser, events))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
     }

@@ -1,8 +1,8 @@
-@(friendForm:Form[FriendData])
+@(loggedName: String, friendForm:Form[FriendData])
 
 @import helper._
 
-@main("Swipetup Home") {
+@main("Swipetup Home", loggedName) {
 <div style="text-align: center; margin-top: 50px; margin-bottom: 50px;">
     <div style="text-align: left; display: inline-block;">
         @helper.form(action = controllers.routes.Home.proceed) {

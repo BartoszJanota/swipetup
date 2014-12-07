@@ -15,7 +15,7 @@ import scala.concurrent.Future
 /**
  * Created by Przemek on 2014-12-06.
  */
-object Preferences extends Controller with UserParser with CategoryResultsParser {
+object Preferences extends Controller with CategoryResultsParser {
 
   val categories = List("java", "python", "scala", "C#", "javascript")
 
@@ -32,6 +32,7 @@ object Preferences extends Controller with UserParser with CategoryResultsParser
   def initWithPreferencesOf(friendName: String) = Action.async { request =>
     //implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
+      val loggedUser = request.session.data.get("logged-name").get
       fetchCategories(authToken).map { response =>
         val json = Json.parse(response.body)
         val categoryResults: CategoryResults = json.as[CategoryResults]
@@ -39,7 +40,7 @@ object Preferences extends Controller with UserParser with CategoryResultsParser
         println(mappedCategoryResults)
         val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse(UserPreference.defaultUserPreference)
         val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), preference.category, Some(preference.text), None, None)) //date format is yyyy-mm-dd
-        Ok(views.html.preferences(filledSearchForm, mappedCategoryResults, friendName))
+        Ok(views.html.preferences(loggedUser, filledSearchForm, mappedCategoryResults, friendName))
       }
     }.getOrElse {
       Future(Unauthorized("No way buddy, not your session!"))
@@ -49,6 +50,7 @@ object Preferences extends Controller with UserParser with CategoryResultsParser
   def initPrivate = Action.async { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
+      val loggedUser = request.session.data.get("logged-name").get
       fetchCategories(authToken).map { response =>
         val json = Json.parse(response.body)
         val categoryResults: CategoryResults = json.as[CategoryResults]
@@ -56,7 +58,7 @@ object Preferences extends Controller with UserParser with CategoryResultsParser
         println(mappedCategoryResults)
         // load city's name by ip
         val filledSearchForm = searchForm.fill(SearchData(None, List(), None, None, None)) //date format is yyyy-mm-dd
-        Ok(views.html.preferences(filledSearchForm, mappedCategoryResults))
+        Ok(views.html.preferences(loggedUser, filledSearchForm, mappedCategoryResults))
       }
     }.getOrElse {
       Future(Unauthorized("No way buddy, not your session!"))
@@ -65,6 +67,7 @@ object Preferences extends Controller with UserParser with CategoryResultsParser
 
   def search = Action { implicit request =>
     request.session.get("oauth-token").map { authToken =>
+      val loggedUser = request.session.data.get("logged-name").get
       println("authToken from search: " + authToken)
       //getUserName(authToken)
       println("Search clicked")
@@ -74,32 +77,18 @@ object Preferences extends Controller with UserParser with CategoryResultsParser
           BadRequest("Form was not properly validated")
         },
         searchData => {
-          fetchUserName(authToken).map { response =>
-            val json = Json.parse(response.body)
-            val user: User = json.as[User]
-            UserDAO.save(user)
-            val userPreference: UserPreference = UserPreference(user, searchData)
-            UserPreferenceDAO.save(userPreference)
-            println(userPreference)
-            println(searchData.startDate)
-            println(searchData.endDate)
-          }
-          Redirect(routes.Timeline.init()).withSession("oauth-token" -> authToken)
+          val user = UserDAO.findOneById(loggedUser).get
+          val userPreference: UserPreference = UserPreference(user, searchData)
+          UserPreferenceDAO.save(userPreference)
+          println(userPreference)
+          println(searchData.startDate)
+          println(searchData.endDate)
+          Redirect(routes.Timeline.init())
         }
       )
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
     }
-  }
-
-  def fetchUserName(authToken: String): Future[WSResponse] = {
-    implicit val app = Play.current
-    WS.url(app.configuration.getString("meetup.api.member.self").get).
-      withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
-      withQueryString(
-        "sign" -> "true",
-        "photo-host" -> "public",
-        "page" -> "5").get()
   }
 
   def fetchCategories(authToken: String): Future[WSResponse] = {

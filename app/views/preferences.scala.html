@@ -1,8 +1,8 @@
-@(friendForm:Form[SearchData], categories: Map[String, String], name: String = null)
+@(loggedName: String, friendForm:Form[SearchData], categories: Map[String, String], name: String = null)
 
 @import helper._
 
-@main("Swipetup Preferences") {
+@main("Swipetup Preferences", loggedName) {
 <div style="text-align: center; margin-top: 50px; margin-bottom: 50px;">
     <div style="text-align: left; display: inline-block;">
         @if(name == null){

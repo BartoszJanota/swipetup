@@ -1,6 +1,6 @@
-@(events: List[EventData])
+@(loggedName: String, events: List[EventData])
 
-@main("Swipetup Timeline") {
+@main("Swipetup Timeline", loggedName) {
 <section id="cd-timeline" class="cd-container">
     @for(event <- events) {
     <div class="cd-timeline-block" active="@event.active">
