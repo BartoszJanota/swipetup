@@ -62,7 +62,7 @@ object UserDAO extends SalatDAOWithCfg[User, String]("app.mongo.uri", "swipetup_
 
 object UserPreference {
 
-  def defaultUserPreference = UserPreference("undefined", "Kraków", List(), "Java is default!")
+  def defaultUserPreference = UserPreference("undefined", "", List(), "")
 
   def apply(user: User, searchData: SearchData): UserPreference = {
     UserPreference(userName = user.name, city = searchData.city, category = searchData.category, text = searchData.text)
