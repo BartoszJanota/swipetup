@@ -1,13 +1,14 @@
 package controllers
 
-import models.{SearchData, User, UserDAO, UserParser}
+import models._
 import play.api._
 import play.api.data.Forms._
 import play.api.data._
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
-import play.api.libs.ws.{WS, WSResponse}
+import play.api.libs.ws.{WSResponse, WS}
 import play.api.mvc._
+import util.OAuth2._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -32,9 +33,9 @@ object Preferences extends Controller with UserParser {
   def initWithPreferencesOf(friendName: String) = Action { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
-      // populate searchForm with data from db
-      // load categories
-      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), List("java", "python"), Some("asynchronous programming"), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
+      val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse(UserPreference.defaultUserPreference)
+      println(preference)
+      val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), preference.category, Some(preference.text), Some("2014-12-06"), Some("2014-12-12"))) //date format is yyyy-mm-dd
       Ok(views.html.preferences(filledSearchForm, categories, friendName))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
@@ -64,16 +65,15 @@ object Preferences extends Controller with UserParser {
           BadRequest(views.html.preferences(searchForm, categories))
         },
         searchData => {
-          fetchUserName(authToken).map { response =>
-            val json = Json.parse(response.body)
-            val user: User = json.as[User]
-            UserDAO.save(user)
-            println(user)
-            println(searchData.city)
-            println(searchData.category)
-            println(searchData.text)
-            println(searchData.startDate)
-            println(searchData.endDate)
+          fetchUserName(authToken).map{ response =>
+              val json = Json.parse(response.body)
+              val user: User = json.as[User]
+              UserDAO.save(user)
+              val userPreference: UserPreference = UserPreference(user, searchData)
+              UserPreferenceDAO.save(userPreference)
+              println(userPreference)
+              println(searchData.startDate)
+              println(searchData.endDate)
           }
           Redirect(routes.Timeline.init()).withSession("oauth-token" -> authToken)
         }
