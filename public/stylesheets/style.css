@@ -369,11 +369,11 @@ header img {
 }
 
 .cd-timeline-block[active=true] .cd-activation-button:after {
-    content: "Deactivate";
+    content: "Not Going";
 }
 
 .cd-timeline-block[active=false] .cd-activation-button:after {
-    content: "Activate";
+    content: "RSVP";
 }
 
 .cd-timeline-content .cd-date {

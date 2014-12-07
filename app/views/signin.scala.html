@@ -2,13 +2,13 @@
 
 @main("Swipetup Signin") {
 <div style="text-align: center; margin-top: 50px;">
-    <h2>Now you are not authenticated, so you cannot perform any further actions yet.</h2>
-    <br/>
+    <h1 style="font-size: 24px;">Now you are not authenticated, so you cannot perform any actions yet.</h1>
+    <br/><br/><br/>
 
-    <h1 style="font-size: 24px;">Log in with your Meetup account.</h1>
+    <h2>Click the button below to log in with your Meetup account.</h2>
     <br/>
     <a href="@redirectMeetupUrl" title="Log in">
-        <img style="margin-top: 24px;" src='@routes.Assets.at("images/meetup_logo_normal.png")'
+        <img style="margin-top: 8px;" src='@routes.Assets.at("images/meetup_logo_normal.png")'
              onmouseover='this.src="@routes.Assets.at("images/meetup_logo_hover.png")"'
              onmouseout='this.src="@routes.Assets.at("images/meetup_logo_normal.png")"'/>
     </a>
