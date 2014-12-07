@@ -40,7 +40,7 @@ object Home extends Controller {
         if (friendData.name == null) {
           Redirect(routes.Preferences.initPrivate()).withSession("oauth-token" -> localAuthToken)
         } else {
-          Redirect(routes.Preferences.initPublic(friendData.name)).withSession("oauth-token" -> localAuthToken)
+          Redirect(routes.Preferences.initWithPreferencesOf(friendData.name)).withSession("oauth-token" -> localAuthToken)
         }
       }
     )
