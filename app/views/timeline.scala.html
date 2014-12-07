@@ -1,10 +1,6 @@
 @(events: List[EventData])
 
 @main("Swipetup Timeline") {
-<header>
-    <img src='@routes.Assets.at("images/logo.png")'/>
-</header>
-
 <section id="cd-timeline" class="cd-container">
     @for(event <- events) {
     <div class="cd-timeline-block" active="@event.active">
