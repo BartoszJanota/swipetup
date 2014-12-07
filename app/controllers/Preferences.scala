@@ -46,7 +46,7 @@ object Preferences extends Controller with UserParser {
     request.session.get("oauth-token").map { authToken =>
       // load city's name by ip
       // load categories
-      val filledSearchForm = searchForm.fill(SearchData(Some("Kraków"), List(), None, None, None))
+      val filledSearchForm = searchForm.fill(SearchData(None, List(), None, None, None))
       Ok(views.html.preferences(filledSearchForm, categories))
     }.getOrElse {
       Unauthorized("No way buddy, not your session!")
