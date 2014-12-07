@@ -3,10 +3,21 @@
 @import helper._
 
 @main("Swipetup Home") {
-@helper.form(action = controllers.routes.Home.proceed) {
-<span>Type your friend's name to see his preferences</span>
-@inputText(friendForm("name"), '_label -> "Friend's name")
-<span>or leave it blank to choose your own</span>
-<input type="submit" value="Proceed">
-}
+<div style="text-align: center; margin-top: 50px;">
+    <div style="text-align: left; display: inline-block;">
+        @helper.form(action = controllers.routes.Home.proceed) {
+        <h2>Type your friend's name to see his preferences</h2>
+
+        <div style="margin-top: 24px;">
+            @inputText(friendForm("name"), '_label -> "Friend's name")
+        </div>
+
+        <h2 style="margin-top: 24px;">or leave it blank to choose your own</h2>
+        <input style="margin-top: 24px;"
+               class="form-button"
+               type="submit"
+               value="Proceed">
+        }
+    </div>
+</div>
 }
