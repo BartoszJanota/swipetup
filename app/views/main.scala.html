@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String, name: String = null)(content: Html)
 
 <!DOCTYPE HTML>
 <html>
@@ -25,6 +25,13 @@
 </head>
 <body>
 <header>
+    @if(name != null){
+    <div style="position: absolute; width: 100%;">
+        <div style="float: right; color: white; line-height: 50px; margin-right: 24px;">
+            <h2 style="font-size: 14px;">Logged as @name (<a href="#0" class="login-info">Logout</a>)</h2>
+        </div>
+    </div>
+    }
     <img src='@routes.Assets.at("images/logo.png")'/>
 </header>
 @content

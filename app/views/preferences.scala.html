@@ -1,16 +1,20 @@
-@(friendForm:Form[SearchData], categories: List[String], name: String = "")
+@(friendForm:Form[SearchData], categories: List[String], name: String = null)
 
 @import helper._
 
 @main("Swipetup Preferences") {
 <div style="text-align: center; margin-top: 50px; margin-bottom: 50px;">
     <div style="text-align: left; display: inline-block;">
-        <h2>Choose your search criteria:</h2>
+        @if(name == null){
+        <h2>Find your most accurate Meetup Events:</h2>
+        } else {
+        <h2>See what @name chose:</h2>
+        }
 
         <div style="margin-top: 24px;">
             @helper.form(action = controllers.routes.Preferences.search) {
             <div style="margin-top: 24px; display: inline;">
-                <div style="float: left">
+                <div style="float: left" class="city-input">
                     @inputText(friendForm("city"), '_label -> "City", 'class -> "form-input")
                 </div>
                 <a title="Locate automatically" href="#0" id="locating">
@@ -32,10 +36,12 @@
             <div style="margin-top: 24px">
                 @inputDate(friendForm("endDate"), '_label -> "End date", 'class -> "form-input")
             </div>
-            <input style="margin-top: 24px;"
-                   class="form-button"
-                   type="submit"
-                   value="Search">
+            <div style="text-align: right;">
+                <input style="margin-top: 24px;"
+                       class="form-button"
+                       type="submit"
+                       value="Search">
+            </div>
             }
         </div>
     </div>
