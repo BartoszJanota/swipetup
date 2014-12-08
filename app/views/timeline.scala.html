@@ -1,6 +1,9 @@
 @(loggedName: String, events: List[EventData])
 
 @main("Swipetup Timeline", loggedName) {
+@if(events.isEmpty){
+<h2 style="text-align: center; margin-top: 100px;">Sorry, no events matched your preferences...</h2>
+} else {
 <section id="cd-timeline" class="cd-container">
     @for(event <- events) {
     <div class="cd-timeline-block" active="@event.active">
@@ -22,6 +25,7 @@
     }
 </section>
 <!-- cd-timeline -->
+}
 <script>
     $(function () {
         console.log("CSS transitions enabled: " + Modernizr.csstransitions);
