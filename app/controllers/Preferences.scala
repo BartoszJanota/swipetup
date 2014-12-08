@@ -82,7 +82,7 @@ object Preferences extends Controller with CategoryResultsParser {
           println(userPreference)
           println(searchData.startDate)
           println(searchData.endDate)
-          Redirect(routes.Timeline.init())
+          Redirect(routes.Timeline.init(userPreference.city, userPreference.category.mkString(","), userPreference.text))
         }
       )
     }.getOrElse {

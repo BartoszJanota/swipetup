@@ -1,6 +1,6 @@
 package controllers
 
-import models.{EventDataResultsParser, EventDataResults}
+import models.{UserPreference, EventDataResultsParser, EventDataResults}
 import play.api._
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
@@ -15,11 +15,11 @@ import scala.concurrent.Future
  */
 object Timeline extends Controller with EventDataResultsParser{
 
-  def init() = Action.async { request =>
+  def init(city: String, category: String, text: String) = Action.async { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
       val loggedUser = request.session.data.get("logged-name").get
-      fetchOpenEvents(authToken).map { response =>
+      fetchOpenEvents(authToken, city, category, text).map { response =>
           val json = Json.parse(response.body)
           val eventDataResults: EventDataResults = json.as[EventDataResults]
         Ok(views.html.timeline(loggedUser, eventDataResults.results))
@@ -42,16 +42,18 @@ object Timeline extends Controller with EventDataResultsParser{
       Unauthorized("No way buddy, not your session!")
     }
   }
-  def fetchOpenEvents(authToken: String): Future[WSResponse] = {
+  def fetchOpenEvents(authToken: String, city: String, category: String, text: String): Future[WSResponse] = {
     implicit val app = Play.current
     WS.url(app.configuration.getString("meetup.api.open_events").get).
       withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
       withQueryString(
         "sign" -> "true",
         "photo-host" -> "public",
-        "city" -> "Kraków",
+        "city" -> city,
+        "category" -> category,
         "country" -> "PL",
-        "page" -> "10").
+        "text" -> text,
+        "page" -> "30").
       get()
   }
 
