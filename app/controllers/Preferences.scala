@@ -70,7 +70,6 @@ object Preferences extends Controller with CategoryResultsParser {
       println("Search clicked")
       searchForm.bindFromRequest.fold(
         formWithErrors => {
-          println("Form with errors")
           BadRequest("Form was not properly validated")
         },
         searchData => {
@@ -78,9 +77,18 @@ object Preferences extends Controller with CategoryResultsParser {
           val userPreference: UserPreference = UserPreference(user, searchData)
           UserPreferenceDAO.save(userPreference)
           println(userPreference)
+          val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
           println(searchData.startDate)
           println(searchData.endDate)
-          Redirect(routes.Timeline.init(userPreference.city, userPreference.category.mkString(","), userPreference.text))
+          var time = System.currentTimeMillis.toString + ",1m"
+          if (searchData.endDate != null && searchData.startDate != null){
+            val startDate: Long = format.parse(searchData.startDate).getTime
+            println(startDate)
+            val endDate: Long = format.parse(searchData.endDate).getTime
+            println(endDate)
+            time = startDate.toString + "," + endDate.toString
+          }
+          Redirect(routes.Timeline.init(userPreference.city, userPreference.category.mkString(","), userPreference.text, time))
         }
       )
     }.getOrElse {
