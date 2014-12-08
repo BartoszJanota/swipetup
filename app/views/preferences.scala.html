@@ -15,7 +15,7 @@
             @helper.form(action = controllers.routes.Preferences.search) {
             <div style="margin-top: 24px; display: inline;">
                 <div style="float: left" class="city-input">
-                    @inputText(friendForm("city"), '_label -> "City", 'class -> "form-input")
+                    @inputText(friendForm("city"), '_label -> "City (required)", 'class -> "form-input")
                 </div>
                 <a title="Locate automatically" href="#0" id="locating">
                     <img style="margin-top: 23px; margin-left: 10px; height: 20px; width: 20px;"
@@ -38,9 +38,11 @@
             </div>
             <div style="text-align: right;">
                 <input style="margin-top: 24px;"
+                       id="search-button"
                        class="form-button"
                        type="submit"
-                       value="Search">
+                       value="Search"
+                       disabled>
             </div>
             }
         </div>
@@ -49,6 +51,16 @@
 }
 <script>
     $(function () {
+        $('#search-button').attr('disabled', true);
+        var city_input = $("#city");
+        city_input.on("input change propertychange", function () {
+            var city_value = city_input.val();
+            if (city_value !== undefined && city_value !== null && city_value !== "") {
+                $('#search-button').removeAttr('disabled')
+            } else {
+                $('#search-button').attr('disabled', true);
+            }
+        });
         $("#locating").click(function () {
             navigator.geolocation.getCurrentPosition(function (position) {
                 var latitude = position.coords.latitude;
@@ -80,7 +92,8 @@
                                 }
                             }
                             if (city !== undefined && city !== null) {
-                                $('#city').val(city);
+                                city_input.val(city);
+                                city_input.trigger("change");
                             } else {
                                 alert('City not located');
                             }

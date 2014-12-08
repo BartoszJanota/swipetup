@@ -36,6 +36,16 @@ h1, h2 {
     font-weight: bold;
 }
 
+input:disabled {
+    background: #7f8c97;
+    cursor: default;
+}
+
+input:disabled:hover {
+    background: #7f8c97;
+    cursor: default;
+}
+
 .city-input {
     width: calc(100% - 30px);
 }
