@@ -19,3 +19,5 @@ GET        /home/preferences                       controllers.Preferences.initP
 POST       /home/preferences                       controllers.Preferences.search
 GET        /home/timeline                          controllers.Timeline.init
 POST       /home/timeline/activation_change        controllers.Timeline.activationChange
+
+GET        /logout                                 controllers.Application.logout

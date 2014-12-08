@@ -33,7 +33,7 @@ object Home extends Controller with UserParser {
         Ok(views.html.home(user.name, friendForm)).withSession("oauth-token" -> authToken, "logged-name" -> user.name)
       }
     }.getOrElse {
-      Future(Unauthorized("No way buddy, not your session!"))
+      Future(Redirect(routes.Application.signin()).withNewSession)
     }
   }
 

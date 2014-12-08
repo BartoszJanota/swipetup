@@ -63,7 +63,7 @@ object Timeline extends Controller {
       )
       Ok(views.html.timeline(loggedUser, events))
     }.getOrElse {
-      Unauthorized("No way buddy, not your session!")
+      Redirect(routes.Application.signin()).withNewSession
     }
   }
 
@@ -77,7 +77,7 @@ object Timeline extends Controller {
         BadRequest("Expected application/form-url-encoded")
       }
     }.getOrElse {
-      Unauthorized("No way buddy, not your session!")
+      Redirect(routes.Application.signin()).withNewSession
     }
   }
 

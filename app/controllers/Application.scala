@@ -18,10 +18,14 @@ object Application extends Controller {
       val callbackURL = util.routes.OAuth2.callback(None, None).absoluteURL()
       val oauth2 = new OAuth2(Play.current)
       val state = UUID.randomUUID().toString()
-      val accessScope = "basic" //Access to Meetup group info, Everywhere API, creating and editing Events and RSVP's, posting photos
+      val accessScope = "basic"
       val redirectMeetupUrl = oauth2.getAuthorizationUrl(callbackURL, accessScope, state)
       Future(Ok(views.html.signin("Your new application is ready.", redirectMeetupUrl)).withSession("oauth-state" -> state))
     }
+  }
+
+  def logout = Action { implicit request =>
+    Redirect(routes.Application.signin()).withNewSession
   }
 
 }

@@ -43,7 +43,7 @@ object Preferences extends Controller with CategoryResultsParser {
         Ok(views.html.preferences(loggedUser, filledSearchForm, mappedCategoryResults, friendName))
       }
     }.getOrElse {
-      Future(Unauthorized("No way buddy, not your session!"))
+      Future(Redirect(routes.Application.signin()).withNewSession)
     }
   }
 
@@ -61,7 +61,7 @@ object Preferences extends Controller with CategoryResultsParser {
         Ok(views.html.preferences(loggedUser, filledSearchForm, mappedCategoryResults))
       }
     }.getOrElse {
-      Future(Unauthorized("No way buddy, not your session!"))
+      Future(Redirect(routes.Application.signin()).withNewSession)
     }
   }
 
@@ -87,7 +87,7 @@ object Preferences extends Controller with CategoryResultsParser {
         }
       )
     }.getOrElse {
-      Unauthorized("No way buddy, not your session!")
+      Redirect(routes.Application.signin()).withNewSession
     }
   }
 
