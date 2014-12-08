@@ -55,8 +55,6 @@ object Preferences extends Controller with CategoryResultsParser {
         val json = Json.parse(response.body)
         val categoryResults: CategoryResults = json.as[CategoryResults]
         val mappedCategoryResults: Map[String, String] = categoryResults.results.map(category => category.id.toString -> category.name).toMap
-        println(mappedCategoryResults)
-        // load city's name by ip
         val filledSearchForm = searchForm.fill(SearchData(None, List(), None, None, None)) //date format is yyyy-mm-dd
         Ok(views.html.preferences(loggedUser, filledSearchForm, mappedCategoryResults))
       }
@@ -68,8 +66,7 @@ object Preferences extends Controller with CategoryResultsParser {
   def search = Action { implicit request =>
     request.session.get("oauth-token").map { authToken =>
       val loggedUser = request.session.data.get("logged-name").get
-      println("authToken from search: " + authToken)
-      //getUserName(authToken)
+
       println("Search clicked")
       searchForm.bindFromRequest.fold(
         formWithErrors => {
@@ -83,7 +80,7 @@ object Preferences extends Controller with CategoryResultsParser {
           println(userPreference)
           println(searchData.startDate)
           println(searchData.endDate)
-          Redirect(routes.Timeline.init())
+          Redirect(routes.Timeline.init(userPreference.city, userPreference.category.mkString(","), userPreference.text))
         }
       )
     }.getOrElse {

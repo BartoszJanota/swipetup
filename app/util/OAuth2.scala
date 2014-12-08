@@ -66,22 +66,4 @@ object OAuth2 extends Controller {
       }
     }).getOrElse(Future.successful(BadRequest("No parameters supplied")))
   }
-
-  def success() = Action.async { request =>
-    implicit val app = Play.current
-    request.session.get("oauth-token").fold(Future.successful(Unauthorized("No way buddy, not your session!"))) { authToken =>
-      println(authToken)
-      WS.url(app.configuration.getString("meetup.api.open_events").get).
-        withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
-        withQueryString(
-          "sign" -> "true",
-          "photo-host" -> "public",
-          "city" -> "Kraków",
-          "country" -> "PL",
-          "page" -> "5").
-        get().map { response =>
-        Ok(response.json)
-      }
-    }
-  }
 }
