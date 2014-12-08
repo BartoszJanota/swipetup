@@ -1,21 +1,20 @@
 package models
 
-import play.api.libs.json.{JsPath, Reads}
-import models.mongoContext._
 import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsPath, Reads}
 
 /**
  * Created by Przemek on 2014-12-06.
  */
 case class EventData(id: String,
-                      title: String,
-                      group: String,
-                      description: String,
-                      active: Boolean,
-                      time: Long,
-                      friends: Int,
-                      eventUrl: String
-)
+                     title: String,
+                     group: String,
+                     description: String,
+                     active: Boolean,
+                     time: Long,
+                     friends: Int,
+                     eventUrl: String
+                      )
 
 object EventData {
   def generate(id: Option[String],
@@ -26,14 +25,14 @@ object EventData {
                time: Option[Long],
                friends: Option[Int],
                eventUrl: Option[String]) =
-    EventData(id = id.getOrElse("undefined"),
-              title = title.getOrElse("undefined"),
-              group = group.getOrElse("undefined"),
-              description = description.getOrElse("undefined"),
-              active = active.getOrElse(false),
-              time = time.getOrElse(0L),
-              friends = friends.getOrElse(0),
-              eventUrl = eventUrl.getOrElse("undefined"))
+    EventData(id = id.getOrElse(""),
+      title = title.getOrElse(""),
+      group = group.getOrElse(""),
+      description = description.getOrElse("").replaceAll( """(<\/?.*?>)""", ""),
+      active = active.getOrElse(false),
+      time = time.getOrElse(0L),
+      friends = friends.getOrElse(0),
+      eventUrl = eventUrl.getOrElse(""))
 }
 
 trait EventDataParser {
@@ -51,7 +50,7 @@ trait EventDataParser {
 
 case class EventDataResults(results: List[EventData])
 
-object EventDataResults{
+object EventDataResults {
   def generate(results: Option[List[EventData]], total: Option[Int]) =
     EventDataResults(results = results.getOrElse(List()))
 }
