@@ -15,11 +15,11 @@ import scala.concurrent.Future
  */
 object Timeline extends Controller with EventDataResultsParser {
 
-  def init(city: String, category: String, text: String) = Action.async { request =>
+  def init(city: String, category: String, text: String, time: String) = Action.async { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
       val loggedUser = request.session.data.get("logged-name").get
-      fetchOpenEvents(authToken, city, category, text).map { response =>
+      fetchOpenEvents(authToken, city, category, text, time).map { response =>
         val json = Json.parse(response.body)
         val eventDataResults: EventDataResults = json.as[EventDataResults]
         Ok(views.html.timeline(loggedUser, eventDataResults.results))
@@ -43,19 +43,35 @@ object Timeline extends Controller with EventDataResultsParser {
     }
   }
 
-  def fetchOpenEvents(authToken: String, city: String, category: String, text: String): Future[WSResponse] = {
+  def fetchOpenEvents(authToken: String, city: String, category: String, text: String, time: String): Future[WSResponse] = {
     implicit val app = Play.current
-    WS.url(app.configuration.getString("meetup.api.open_events").get).
-      withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
-      withQueryString(
-        "sign" -> "true",
-        "photo-host" -> "public",
-        "city" -> city,
-        "category" -> category,
-        "country" -> "PL",
-        "text" -> text,
-        "page" -> "30").
-      get()
+    if (category.isEmpty){
+      println("category: " + category)
+      WS.url(app.configuration.getString("meetup.api.open_events").get).
+        withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+        withQueryString(
+          "sign" -> "true",
+          "photo-host" -> "public",
+          "city" -> city,
+          "country" -> "PL",
+          "time" -> time,
+          "text" -> text,
+          "page" -> "30").
+        get()
+    } else {
+      WS.url(app.configuration.getString("meetup.api.open_events").get).
+        withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+        withQueryString(
+          "sign" -> "true",
+          "photo-host" -> "public",
+          "city" -> city,
+          "category" -> category,
+          "country" -> "PL",
+          "time" -> time,
+          "text" -> text,
+          "page" -> "30").
+        get()
+    }
   }
 
 }

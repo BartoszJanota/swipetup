@@ -1,5 +1,6 @@
 package models
 
+import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Reads}
 
@@ -11,12 +12,13 @@ case class EventData(id: String,
                      group: String,
                      description: String,
                      active: Boolean,
-                     time: Long,
+                     time: String,
                      friends: Int,
                      eventUrl: String
                       )
 
 object EventData {
+  val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
   def generate(id: Option[String],
                title: Option[String],
                group: Option[String],
@@ -30,7 +32,7 @@ object EventData {
       group = group.getOrElse(""),
       description = description.getOrElse("").replaceAll( """(<\/?.*?>)""", ""),
       active = active.getOrElse(false),
-      time = time.getOrElse(0L),
+      time = format.format(new java.util.Date(time.getOrElse(System.currentTimeMillis))),
       friends = friends.getOrElse(0),
       eventUrl = eventUrl.getOrElse(""))
 }

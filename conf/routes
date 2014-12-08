@@ -16,7 +16,7 @@ POST       /home                                   controllers.Home.proceed
 GET        /home/preferences/:friendName           controllers.Preferences.initWithPreferencesOf(friendName)
 GET        /home/preferences                       controllers.Preferences.initPrivate()
 POST       /home/preferences                       controllers.Preferences.search
-GET        /home/timeline                          controllers.Timeline.init(city: String, category: String, text: String)
+GET        /home/timeline                          controllers.Timeline.init(city: String, category: String, text: String, time: String)
 POST       /home/timeline/activation_change        controllers.Timeline.activationChange
 
 GET        /logout                                 controllers.Application.logout
