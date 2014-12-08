@@ -55,7 +55,6 @@ trait UserParser {
     (JsPath \ "name").readNullable[String] and
       (JsPath \ "status").readNullable[String]
     )(User.generate _)
-
 }
 
 object UserDAO extends SalatDAOWithCfg[User, String]("app.mongo.uri", "swipetup_users")
