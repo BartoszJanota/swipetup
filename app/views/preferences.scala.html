@@ -53,6 +53,10 @@
     $(function () {
         $('#search-button').attr('disabled', true);
         var city_input = $("#city");
+        var city_value = city_input.val();
+        if (city_value !== undefined && city_value !== null && city_value !== "") {
+            $('#search-button').removeAttr('disabled')
+        }
         city_input.on("input change propertychange", function () {
             var city_value = city_input.val();
             if (city_value !== undefined && city_value !== null && city_value !== "") {
