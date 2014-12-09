@@ -38,23 +38,51 @@ trait CategoryParser {
 
 case class User(
                  @Key("_id") name: String,
-                 status: String
+                 status: String,
+                 hasPhoto: Boolean
                  )
 
 object User {
   def generate(name: Option[String],
-               status: Option[String]) =
+               status: Option[String],
+               photo: Option[Photo]) =
     User(
       name = name.getOrElse("undefined"),
-      status = status.getOrElse("inactive")
+      status = status.getOrElse("inactive"),
+      hasPhoto = photo.isDefined
     )
 }
 
-trait UserParser {
+trait UserParser extends PhotoParser {
   implicit val userReads: Reads[User] = (
     (JsPath \ "name").readNullable[String] and
-      (JsPath \ "status").readNullable[String]
+      (JsPath \ "status").readNullable[String] and
+      (JsPath \ "photo").readNullable[Photo]
     )(User.generate _)
+}
+
+case class Photo(photoLink: String, highresLink: String, thumbLink: String, photoId: Long)
+
+object Photo {
+  def generate(photoLink: Option[String],
+               highresLink: Option[String],
+               thumbLink: Option[String],
+               photoId: Option[Long]) =
+    Photo(
+      photoLink = photoLink.getOrElse(""),
+      highresLink = highresLink.getOrElse(""),
+      thumbLink = thumbLink.getOrElse(""),
+      photoId = photoId.getOrElse(0)
+    )
+}
+
+trait PhotoParser {
+  implicit val photoReads: Reads[Photo] = (
+    (JsPath \ "photo_link").readNullable[String] and
+      (JsPath \ "highres_link").readNullable[String] and
+      (JsPath \ "thumb_link").readNullable[String] and
+      (JsPath \ "photo_id").readNullable[Long]
+    )(Photo.generate _)
 }
 
 object UserDAO extends SalatDAOWithCfg[User, String]("app.mongo.uri", "swipetup_users")

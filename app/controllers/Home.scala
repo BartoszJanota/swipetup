@@ -30,7 +30,7 @@ object Home extends Controller with UserParser {
         val json = Json.parse(response.body)
         val user: User = json.as[User]
         UserDAO.save(user)
-        Ok(views.html.home(user.name, friendForm)).withSession("oauth-token" -> authToken, "logged-name" -> user.name)
+        Ok(views.html.home(user.name, user.hasPhoto, friendForm)).withSession("oauth-token" -> authToken, "logged-name" -> user.name, "content-permission" -> user.hasPhoto.toString)
       }
     }.getOrElse {
       Future(Redirect(routes.Application.signin()).withNewSession)

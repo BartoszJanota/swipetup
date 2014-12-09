@@ -1,9 +1,10 @@
-@(loggedName: String, friendForm:Form[FriendData])
+@(loggedName: String, hasPhoto: Boolean, friendForm:Form[FriendData])
 
 @import helper._
 
 @main("Swipetup Home", loggedName) {
-<div style="text-align: center; margin-top: 50px; margin-bottom: 50px;">
+<div style="text-align: center; margin: 50px;">
+    @if(hasPhoto){
     <div style="text-align: left; display: inline-block;">
         @helper.form(action = controllers.routes.Home.proceed) {
         <h2>Type your friend's name to see their preferences</h2>
@@ -23,5 +24,9 @@
         </div>
         }
     </div>
+    } else {
+    <h2>You need to set profile picture at <a href="http://www.meetup.com/">http://www.meetup.com/</a> in
+        order to use Swipetup (Joining groups and events often requires having photo set).</h2>
+    }
 </div>
 }
