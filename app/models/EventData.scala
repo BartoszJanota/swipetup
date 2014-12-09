@@ -30,7 +30,13 @@ object EventData {
     EventData(id = id.getOrElse(""),
       title = title.getOrElse(""),
       group = group.getOrElse(""),
-      description = description.getOrElse("").replaceAll( """(<\/?.*?>)""", ""),
+      description = {
+        var parsedNoHTML: String = description.getOrElse("").replaceAll( """(<\/?.*?>)""", "")
+        if (parsedNoHTML.length > 300){
+          parsedNoHTML = parsedNoHTML.substring(0,300) + "..."
+        }
+        parsedNoHTML
+      },
       active = active.getOrElse(false),
       time = format.format(new java.util.Date(time.getOrElse(System.currentTimeMillis))),
       friends = friends.getOrElse(0),
