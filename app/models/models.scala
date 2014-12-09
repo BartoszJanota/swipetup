@@ -104,3 +104,34 @@ case class UserPreference(
                            )
 
 object UserPreferenceDAO extends SalatDAOWithCfg[UserPreference, String]("app.mongo.uri", "swipetup_users_preference")
+
+case class RsvpsResults(results: List[Rsvp])
+
+object RsvpsResults {
+  def generate(results: Option[List[Rsvp]], total: Option[Int]) =
+    RsvpsResults(results = results.getOrElse(List()))
+}
+
+trait RsvpsResultsParser extends RsvpParser {
+  implicit val categoryResultsRead: Reads[RsvpsResults] = (
+    (JsPath \ "results").readNullable[List[Rsvp]] and
+      (JsPath \ "total").readNullable[Int]
+    )(RsvpsResults.generate _)
+}
+
+case class Rsvp(response: String, memberName: String, eventId: String)
+
+object Rsvp {
+  def generate(response: Option[String],
+               memberName: Option[String],
+                eventId: Option[String]) =
+    Rsvp(response = response.getOrElse("undefined"), memberName = memberName.getOrElse("undefined"), eventId = eventId.getOrElse("undefined"))
+}
+
+trait RsvpParser {
+  implicit val categoryReads: Reads[Rsvp] = (
+    (JsPath \ "response").readNullable[String] and
+      (JsPath \ "member" \ "name").readNullable[String] and
+      (JsPath \ "event" \ "id").readNullable[String]
+    )(Rsvp.generate _)
+}

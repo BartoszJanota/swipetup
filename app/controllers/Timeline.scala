@@ -1,6 +1,6 @@
 package controllers
 
-import models.{EventDataResults, EventDataResultsParser}
+import models._
 import play.api._
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
@@ -13,7 +13,7 @@ import scala.concurrent.Future
 /**
  * Created by Przemek on 2014-12-06.
  */
-object Timeline extends Controller with EventDataResultsParser {
+object Timeline extends Controller with EventDataResultsParser with RsvpsResultsParser{
 
   def init(city: String, category: String, text: String, time: String) = Action.async { request =>
     implicit val app = Play.current
@@ -21,14 +21,31 @@ object Timeline extends Controller with EventDataResultsParser {
       if (request.session.data.get("content-permission").get.equals("false")) {
         Future(Redirect(routes.Home.init()))
       } else {
-        val loggedUser: String = request.session.data.get("logged-name").get
-        fetchOpenEvents(authToken, city, category, text, time).map { response =>
+      val loggedUser: String = request.session.data.get("logged-name").get
+      fetchOpenEvents(authToken, city, category, text, time).map { response =>
+        val json = Json.parse(response.body)
+        val eventDataResults: EventDataResults = json.as[EventDataResults]
+        val eventsToString = eventDataResults.results.map{ event =>
+          event.id
+        }.toList.mkString(",")
+        var updatedList: List[EventData] = eventDataResults.results
+        rsvps(authToken, eventsToString).map { response =>
           val json = Json.parse(response.body)
-          val eventDataResults: EventDataResults = json.as[EventDataResults]
-          eventDataResults.results.foreach { event =>
-            println(event.id)
+          val rsvpsResults: RsvpsResults = json.as[RsvpsResults]
+          println("rsvpsResults: " + rsvpsResults)
+          rsvpsResults.results.foreach{ result =>
+            if(result.memberName == loggedUser){
+              val filteredEvent: List[EventData] = eventDataResults.results.filter(_.id == result.eventId)
+              if (filteredEvent.size > 0){
+                println("filtered: " + filteredEvent.head)
+                updatedList = updatedList.updated(updatedList.indexOf(filteredEvent.head), filteredEvent.head.copy(active = true))
+              }
+            }
           }
-          Ok(views.html.timeline(loggedUser, eventDataResults.results))
+          println("updatedListAfterFilter: " + updatedList)
+          }
+        println("updatedListBeforeFilter: " + updatedList)
+        Ok(views.html.timeline(loggedUser, updatedList))
         }
       }
     }.getOrElse {
@@ -44,12 +61,7 @@ object Timeline extends Controller with EventDataResultsParser {
         rsvp(authToken, form).map { response =>
           println(response.body)
           println(response.status)
-          //if(response.status != 201){
-          //println("redirecting")
-          //Redirect(routes.Timeline.init("Kraków", "", "", "")).withNewSession
-          //} else {
           Ok("OK")
-          //}
         }
       }.getOrElse {
         Future(BadRequest("Expected application/form-url-encoded"))
@@ -59,6 +71,18 @@ object Timeline extends Controller with EventDataResultsParser {
     }
   }
 
+  def rsvps(authToken: String, events: String): Future[WSResponse] = {
+    println(events)
+    implicit val app = Play.current
+    WS.url(app.configuration.getString("meetup.api.rsvps").get).
+      withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+      withQueryString(
+        "sign" -> "true",
+        "event_id" -> events,
+        "photo-host" -> "public",
+        "page" -> "10000").
+      get()
+  }
 
   def rsvp(authToken: String, form: Map[String, Seq[String]]): Future[WSResponse] = {
     implicit val app = Play.current
@@ -103,7 +127,7 @@ object Timeline extends Controller with EventDataResultsParser {
           "country" -> "PL",
           "time" -> time,
           "text" -> text,
-          "page" -> "30").
+          "page" -> "2").
         get()
     } else {
       WS.url(app.configuration.getString("meetup.api.open_events").get).
@@ -116,7 +140,7 @@ object Timeline extends Controller with EventDataResultsParser {
           "country" -> "PL",
           "time" -> time,
           "text" -> text,
-          "page" -> "30").
+          "page" -> "2").
         get()
     }
   }
