@@ -22,6 +22,9 @@ object Timeline extends Controller with EventDataResultsParser {
       fetchOpenEvents(authToken, city, category, text, time).map { response =>
         val json = Json.parse(response.body)
         val eventDataResults: EventDataResults = json.as[EventDataResults]
+        eventDataResults.results.foreach{ event =>
+          println(event.id)
+        }
         Ok(views.html.timeline(loggedUser, eventDataResults.results))
       }
     }.getOrElse {
