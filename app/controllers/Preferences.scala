@@ -41,9 +41,13 @@ object Preferences extends Controller with CategoryResultsParser {
           val categoryResults: CategoryResults = json.as[CategoryResults]
           val mappedCategoryResults: Map[String, String] = categoryResults.results.map(category => category.id.toString -> category.name).toMap
           println(mappedCategoryResults)
-          val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse(UserPreference.defaultUserPreference)
+          var friendFound = true
+          val preference: UserPreference = UserPreferenceDAO.findOneById(friendName).getOrElse {
+            friendFound = false
+            UserPreference.defaultUserPreference
+          }
           val filledSearchForm = searchForm.fill(SearchData(Some(preference.city), preference.category, Some(preference.text), None, None)) //date format is yyyy-mm-dd
-          Ok(views.html.preferences(loggedUser, filledSearchForm, mappedCategoryResults, friendName))
+          Ok(views.html.preferences(loggedUser, filledSearchForm, mappedCategoryResults, friendName, friendFound))
         }
       }
     }.getOrElse {

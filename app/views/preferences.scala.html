@@ -1,4 +1,4 @@
-@(loggedName: String, friendForm:Form[SearchData], categories: Map[String, String], name: String = null)
+@(loggedName: String, friendForm:Form[SearchData], categories: Map[String, String], name: String = null, friendFound: Boolean = true)
 
 @import helper._
 
@@ -7,7 +7,11 @@
     @if(name == null){
     <h2 style="font-size: 18px;">Find your most accurate Meetup Events:</h2>
     } else {
+    @if(friendFound == true){
     <h2>See what @name chose:</h2>
+    } else {
+    <h2>Unfortunately person with given name was not found, please find your most accurate Meetup Events:</h2>
+    }
     }
 
     <div style="text-align: left; display: inline-block; min-width: 360px;">
