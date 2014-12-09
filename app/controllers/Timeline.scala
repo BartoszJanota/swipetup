@@ -15,9 +15,6 @@ import scala.concurrent.Future
  */
 object Timeline extends Controller with EventDataResultsParser {
 
-  var localDataResults: EventDataResults = null
-  var localLoggedUser: String = null
-  
   def init(city: String, category: String, text: String, time: String) = Action.async { request =>
     implicit val app = Play.current
     request.session.get("oauth-token").map { authToken =>
@@ -25,8 +22,6 @@ object Timeline extends Controller with EventDataResultsParser {
       fetchOpenEvents(authToken, city, category, text, time).map { response =>
         val json = Json.parse(response.body)
         val eventDataResults: EventDataResults = json.as[EventDataResults]
-        localDataResults = eventDataResults
-        localLoggedUser = loggedUser
         Ok(views.html.timeline(loggedUser, eventDataResults.results))
       }
     }.getOrElse {
@@ -42,12 +37,12 @@ object Timeline extends Controller with EventDataResultsParser {
         rsvp(authToken, form).map { response =>
           println(response.body)
           println(response.status)
-          if(response.status != 201){
-            println("redirecting")
-            Redirect(routes.Timeline.init("Kraków", "", "", "")).withNewSession
-          } else {
+          //if(response.status != 201){
+            //println("redirecting")
+            //Redirect(routes.Timeline.init("Kraków", "", "", "")).withNewSession
+          //} else {
             Ok("OK")
-          }
+          //}
         }
       }.getOrElse {
         Future(BadRequest("Expected application/form-url-encoded"))
@@ -60,9 +55,25 @@ object Timeline extends Controller with EventDataResultsParser {
 
   def rsvp(authToken: String, form: Map[String, Seq[String]]): Future[WSResponse] ={
     implicit val app = Play.current
-    var rsvp = "yes"
-    if (form.get("active").get.head == "false") {
-      rsvp = "no"
+    var rsvp = "no"
+    if (form.get("active").get.head == "true") {
+      rsvp = "yes"
+      println(form.get("groupId").get.head)
+      WS.url(app.configuration.getString("meetup.api.group.join").get).
+      withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+      withQueryString(
+      "group_id" -> form.get("groupId").get.head,
+      "photo-host" -> "public").
+      post("").map { response =>
+        println(response.body)
+        println(response.status)
+        WS.url(app.configuration.getString("meetup.api.rsvp").get).
+          withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").
+          withQueryString(
+            "event_id" -> form.get("id").get.head,
+            "rsvp" -> rsvp).
+          post("")
+      }
     }
     WS.url(app.configuration.getString("meetup.api.rsvp").get).
       withHeaders(HeaderNames.AUTHORIZATION -> s"bearer $authToken").

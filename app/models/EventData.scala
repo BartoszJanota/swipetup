@@ -10,6 +10,7 @@ import play.api.libs.json.{JsPath, Reads}
 case class EventData(id: String,
                      title: String,
                      group: String,
+                     groupId: Long,
                      description: String,
                      active: Boolean,
                      time: String,
@@ -22,6 +23,7 @@ object EventData {
   def generate(id: Option[String],
                title: Option[String],
                group: Option[String],
+               groupId: Option[Long],
                description: Option[String],
                active: Option[Boolean],
                time: Option[Long],
@@ -30,6 +32,7 @@ object EventData {
     EventData(id = id.getOrElse(""),
       title = title.getOrElse(""),
       group = group.getOrElse(""),
+      groupId = groupId.getOrElse(0),
       description = {
         var parsedNoHTML: String = description.getOrElse("").replaceAll( """(<\/?.*?>)""", "")
         if (parsedNoHTML.length > 300){
@@ -48,6 +51,7 @@ trait EventDataParser {
     (JsPath \ "id").readNullable[String] and
       (JsPath \ "name").readNullable[String] and
       (JsPath \ "group" \ "name").readNullable[String] and
+      (JsPath \ "group" \ "id").readNullable[Long] and
       (JsPath \ "description").readNullable[String] and
       (JsPath \ "active").readNullable[Boolean] and
       (JsPath \ "time").readNullable[Long] and
